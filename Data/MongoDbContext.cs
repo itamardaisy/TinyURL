@@ -1,9 +1,10 @@
 using TinyUrl.Models;
 using MongoDB.Driver;
+using TinyUrl.Models.Interfaces;
 
 namespace TinyUrl.Data
 {
-    public class MongoDbContext
+    public class MongoDbContext : IDbContext
     {
         private readonly IMongoDatabase _database;
 
@@ -15,4 +16,4 @@ namespace TinyUrl.Data
 
         public IMongoCollection<UrlMapping> UrlMappings => _database.GetCollection<UrlMapping>("UrlMappings");
     }
-}
+}       

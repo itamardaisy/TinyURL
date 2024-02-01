@@ -3,21 +3,24 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using TinyUrl.Models;
 using TinyUrl.Data;
+using TinyUrl.Services;
+using TinyUrl.Models.Interfaces;
 
 [Route("api/[controller]")]
 public class UrlController : ControllerBase
 {
-    private readonly MongoDbContext _dbContext;
+    private readonly IDbContext _dbContext;
+    private readonly IShortenUrlService _shortenUrlGenerator;
 
-    public UrlController(MongoDbContext dbContext)
+    public UrlController(IDbContext dbContext, IShortenUrlService shortenUrlGenerator)
     {
         _dbContext = dbContext;
+        _shortenUrlGenerator = shortenUrlGenerator;
     }
 
     [HttpPost("shorten")]
     public IActionResult ShortenUrl([FromBody] UrlMapping urlMapping)
     {
-        Console.WriteLine("kakakaka");
         if (urlMapping == null || string.IsNullOrEmpty(urlMapping.LongUrl))
         {
             return BadRequest("Invalid input");
@@ -27,12 +30,10 @@ public class UrlController : ControllerBase
 
         if (existingMapping != null)
         {
-            // URL already exists, return the existing short URL
             return Ok(existingMapping.ShortUrl);
         }
 
-        // Generate a short URL (you can use a custom algorithm to make collisions extremely unlikely)
-        urlMapping.ShortUrl = GenerateShortUrl();
+        urlMapping.ShortUrl = _shortenUrlGenerator.GenerateShortUrl();
         _dbContext.UrlMappings.InsertOne(urlMapping);
 
         return Ok(urlMapping.ShortUrl);
@@ -45,19 +46,9 @@ public class UrlController : ControllerBase
 
         if (urlMapping != null)
         {
-            // Redirect to the original long URL
             return Redirect(urlMapping.LongUrl);
         }
 
         return NotFound();
-    }
-
-    // Custom short URL generation algorithm
-    private string GenerateShortUrl()
-    {
-        // Implement your custom logic here
-        // For simplicity, you can use a library like Base64 encoding
-        // Make sure to handle collisions if needed
-        return Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 8);
     }
 }

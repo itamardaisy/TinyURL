@@ -30,6 +30,7 @@
 /Users/itamardaisy/Documents/My Projects/Dotnet/TinyURL/obj/Debug/net8.0/TinyURL.csproj.CoreCompileInputs.cache
 /Users/itamardaisy/Documents/My Projects/Dotnet/TinyURL/obj/Debug/net8.0/TinyURL.MvcApplicationPartsAssemblyInfo.cs
 /Users/itamardaisy/Documents/My Projects/Dotnet/TinyURL/obj/Debug/net8.0/TinyURL.MvcApplicationPartsAssemblyInfo.cache
+/Users/itamardaisy/Documents/My Projects/Dotnet/TinyURL/obj/Debug/net8.0/TinyURL.sourcelink.json
 /Users/itamardaisy/Documents/My Projects/Dotnet/TinyURL/obj/Debug/net8.0/staticwebassets.build.json
 /Users/itamardaisy/Documents/My Projects/Dotnet/TinyURL/obj/Debug/net8.0/staticwebassets.development.json
 /Users/itamardaisy/Documents/My Projects/Dotnet/TinyURL/obj/Debug/net8.0/staticwebassets/msbuild.TinyURL.Microsoft.AspNetCore.StaticWebAssets.props

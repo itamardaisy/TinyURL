@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using TinyUrl.Data;
+using TinyUrl.Models.Interfaces;
+using TinyUrl.Services;
 
 namespace TinyUrl
 {
@@ -17,7 +20,14 @@ namespace TinyUrl
             services.AddControllers(); // Add this line to enable controllers for Web API
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0); // Adjust the version based on your needs
 
-            services.AddSingleton(new MongoDbContext(Configuration.GetConnectionString("MongoDb"), "TinyUrlDb"));
+            services.AddTransient<IShortenUrlService>(provider => new ShortenUrlService());
+            services.AddSingleton<IDbContext>(provider =>
+            {
+                var connectionString = Configuration.GetConnectionString("MongoDb");
+                var databaseName = "TinyUrlDb";
+
+                return new MongoDbContext(connectionString, databaseName);
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
