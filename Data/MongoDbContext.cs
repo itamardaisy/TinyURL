@@ -16,4 +16,4 @@ namespace TinyUrl.Data
 
         public IMongoCollection<UrlMapping> UrlMappings => _database.GetCollection<UrlMapping>("UrlMappings");
     }
-}       
+}

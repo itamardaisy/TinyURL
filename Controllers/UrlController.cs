@@ -1,52 +1,39 @@
-using System;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using TinyUrl.Models;
-using TinyUrl.Data;
-using TinyUrl.Services;
+using TinyUrl.Logic;
 using TinyUrl.Models.Interfaces;
 
-[Route("api/[controller]")]
 public class UrlController : ControllerBase
 {
-    private readonly IDbContext _dbContext;
-    private readonly IShortenUrlService _shortenUrlGenerator;
+    private readonly TinyUrlManager _tinyUrlManager;
 
-    public UrlController(IDbContext dbContext, IShortenUrlService shortenUrlGenerator)
+    public UrlController(IDbContext dbContext, IShortenUrlService shortenUrlGenerator, ISizeLimitedCache<string, string> sizeLimitedCache)
     {
-        _dbContext = dbContext;
-        _shortenUrlGenerator = shortenUrlGenerator;
+        _tinyUrlManager = new TinyUrlManager(dbContext, shortenUrlGenerator, sizeLimitedCache);
     }
 
     [HttpPost("shorten")]
     public IActionResult ShortenUrl([FromBody] UrlMapping urlMapping)
     {
-        if (urlMapping == null || string.IsNullOrEmpty(urlMapping.LongUrl))
+        ShortenUrlResult res = _tinyUrlManager.ShortenUrl(urlMapping);
+        if (!res.Status)
         {
             return BadRequest("Invalid input");
         }
-
-        var existingMapping = _dbContext.UrlMappings.Find(x => x.LongUrl == urlMapping.LongUrl).FirstOrDefault();
-
-        if (existingMapping != null)
+        else
         {
-            return Ok(existingMapping.ShortUrl);
+            return Ok(res.ShortenUrl);
         }
-
-        urlMapping.ShortUrl = _shortenUrlGenerator.GenerateShortUrl();
-        _dbContext.UrlMappings.InsertOne(urlMapping);
-
-        return Ok(urlMapping.ShortUrl);
     }
 
-    [HttpGet("redirect/{shortUrl}")]
+    [HttpGet("{shortUrl}")]
     public IActionResult RedirectUrl(string shortUrl)
     {
-        var urlMapping = _dbContext.UrlMappings.Find(x => x.ShortUrl == shortUrl).FirstOrDefault();
+        string redirectUrl = _tinyUrlManager.RedirectUrl(shortUrl);
 
-        if (urlMapping != null)
+        if (redirectUrl != string.Empty)
         {
-            return Redirect(urlMapping.LongUrl);
+            return Redirect(redirectUrl);
         }
 
         return NotFound();
